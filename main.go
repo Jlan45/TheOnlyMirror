@@ -8,13 +8,14 @@ import (
 	"strings"
 )
 
-func github(w http.ResponseWriter, r *http.Request) {
-
+var DebianDistribution = map[string][]string{
+	"ubuntu": []string{"bionic", "devel", "focal", "jammy", "lunar", "mantic", "noble", "oracular", "trusty", "xenial"},
+	"debian": []string{"buster", "bullseye", "jessie", "sid", "stretch", "wheezy"},
 }
-
 var funcMap = map[string]func(w http.ResponseWriter, r *http.Request){
 	"pypi":      mirrors.Pypi,
 	"dockerhub": mirrors.Dockerhub,
+	"ubuntu":    mirrors.Ubuntu,
 }
 var uaMap = map[string]string{
 	//存放不同UA的特征，比如docker的特征就是ua中包含docker，key特征，value是上面funcMap中定义的镜像类型
@@ -24,16 +25,38 @@ var uaMap = map[string]string{
 	"npm":            "npm",
 	"node":           "npm",
 	"Go-http-client": "go",
+	"APT-HTTP":       "debian-linux",
 }
 
-func whichMirror(UA string) string {
-	for key, value := range uaMap {
-		if strings.Contains(UA, key) {
-			log.Println("UA:", UA, "Mirror:", value)
-			return value
+func whichDebianDistribution(request *http.Request) string {
+	for _, distribution := range DebianDistribution["ubuntu"] {
+		if strings.Contains(request.URL.Path, distribution) || strings.Contains(request.URL.Path, "ubuntu") {
+			return "ubuntu"
+		}
+	}
+	for _, distribution := range DebianDistribution["debian"] {
+		if strings.Contains(request.URL.Path, distribution) {
+			return "debian"
 		}
 	}
 	return ""
+}
+func whichMirror(request *http.Request) string {
+	typeFromUA := ""
+	//初步判断
+	for key, value := range uaMap {
+		if strings.Contains(request.UserAgent(), key) {
+			log.Println("UA:", request.UserAgent(), "Mirror:", value)
+			typeFromUA = value
+		}
+	}
+	//针对特殊情况的判断
+	//debian系
+	if typeFromUA == "debian-linux" {
+		return whichDebianDistribution(request)
+	}
+	mirrorType := typeFromUA
+	return mirrorType
 }
 func main() {
 	//要做的镜像： github dockerhub pypi npm golang
@@ -45,7 +68,7 @@ func main() {
 	server := http.NewServeMux()
 	// 创建反向代理处理函数
 	server.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		mirrorType := whichMirror(r.UserAgent())
+		mirrorType := whichMirror(r)
 		if mirrorType == "" {
 			http.NotFound(w, r)
 			return

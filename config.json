@@ -1,17 +1,17 @@
 {
   "domain": "127.0.0.1:8090",
   "mirrorList": [
-    "dockerHub",
+    "dockerhub",
     "github",
-    "pypi"
+    "pypi",
+    "ubuntu"
   ],
   "sources": {
-    "pypi_index": "https://pypi.org/",
+    "pypi_index": "https://pypi.org",
     "pypi_files": "https://files.pythonhosted.org",
     "dockerhub":"https://docker.mirror.nothinglikethis.asia",
-    "ubuntu": "http://archive.ubuntu.com/ubuntu/",
-    "debian": "http://deb.debian.org/debian/",
-    "centos": "http://mirror.centos.org/centos/"
+    "ubuntu": "http://ports.ubuntu.com/",
+    "debian": "http://deb.debian.org/"
   },
   "port": 8090,
   "tls": false
