@@ -3,6 +3,7 @@ package main
 import (
 	"TheOnlyMirror/config"
 	"TheOnlyMirror/mirrors"
+	"fmt"
 	"log"
 	"net/http"
 	"strings"
@@ -13,9 +14,13 @@ var DebianDistribution = map[string][]string{
 	"debian": []string{"buster", "bullseye", "jessie", "sid", "stretch", "wheezy"},
 }
 var funcMap = map[string]func(w http.ResponseWriter, r *http.Request){
-	"pypi":      mirrors.Pypi,
-	"dockerhub": mirrors.Dockerhub,
-	"ubuntu":    mirrors.Ubuntu,
+	"pypi":         mirrors.Pypi,
+	"dockerhub":    mirrors.Dockerhub,
+	"ubuntu":       mirrors.Ubuntu,
+	"ubuntu_ports": mirrors.UbuntuPorts,
+	"debian":       mirrors.Debian,
+	"kali":         mirrors.Kali,
+	"npm":          mirrors.Npm,
 }
 var uaMap = map[string]string{
 	//存放不同UA的特征，比如docker的特征就是ua中包含docker，key特征，value是上面funcMap中定义的镜像类型
@@ -29,15 +34,18 @@ var uaMap = map[string]string{
 }
 
 func whichDebianDistribution(request *http.Request) string {
-	for _, distribution := range DebianDistribution["ubuntu"] {
-		if strings.Contains(request.URL.Path, distribution) || strings.Contains(request.URL.Path, "ubuntu") {
-			return "ubuntu"
-		}
+	if strings.HasPrefix(request.URL.Path, "/ubuntu-ports") {
+		return "ubuntu_ports"
 	}
-	for _, distribution := range DebianDistribution["debian"] {
-		if strings.Contains(request.URL.Path, distribution) {
-			return "debian"
-		}
+	if strings.HasPrefix(request.URL.Path, "/ubuntu") {
+		return "ubuntu"
+	}
+
+	if strings.HasPrefix(request.URL.Path, "/debian") {
+		return "debian"
+	}
+	if strings.HasPrefix(request.URL.Path, "/kali") {
+		return "kali"
 	}
 	return ""
 }
@@ -68,6 +76,12 @@ func main() {
 	server := http.NewServeMux()
 	// 创建反向代理处理函数
 	server.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		if config.ServerConfig.HostControll {
+			if !config.ServerConfig.CheckHost(r.Host) {
+				http.NotFound(w, r)
+				return
+			}
+		}
 		mirrorType := whichMirror(r)
 		if mirrorType == "" {
 			http.NotFound(w, r)
@@ -81,7 +95,7 @@ func main() {
 
 	// 启动服务器
 	srv := &http.Server{
-		Addr:    ":8090",
+		Addr:    fmt.Sprintf(":%d", config.ServerConfig.Port),
 		Handler: server,
 		//TLSConfig:    cfg,
 		//TLSNextProto: make(map[string]func(*http.Server, *tls.Conn, http.Handler), 0),

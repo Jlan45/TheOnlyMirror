@@ -1,5 +1,5 @@
 {
-  "domain": "127.0.0.1:8090",
+  "domain": "mirror.nothinglikethis.asia",
   "mirrorList": [
     "dockerhub",
     "github",
@@ -10,9 +10,14 @@
     "pypi_index": "https://pypi.org",
     "pypi_files": "https://files.pythonhosted.org",
     "dockerhub":"https://docker.mirror.nothinglikethis.asia",
-    "ubuntu": "http://ports.ubuntu.com/",
-    "debian": "http://deb.debian.org/"
+    "ubuntu": "http://archive.ubuntu.com",
+    "ubuntu_ports": "http://ports.ubuntu.com",
+    "debian": "http://deb.debian.org",
+    "kali": "http://http.kali.org",
+    "npm":"https://registry.npmjs.org"
   },
-  "port": 8090,
-  "tls": false
+  "port": 8080,
+  "tls": false,
+  "hostControll": false,
+  "hostList": []
 }
