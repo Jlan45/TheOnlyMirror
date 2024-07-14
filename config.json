@@ -1,5 +1,5 @@
 {
-  "domain": "127.0.0.1:8090",
+  "domain": "mirror.nothinglikethis.asia",
   "mirrorList": [
     "dockerhub",
     "github",
@@ -18,8 +18,8 @@
     "alpine":"https://dl-cdn.alpinelinux.org",
     "dockerblob": "https://production.cloudflare.docker.com"
   },
-  "port": 8090,
-  "tls": false,
+  "port": 8080,
+  "tls": true,
   "hostControll": false,
   "hostList": []
 }
