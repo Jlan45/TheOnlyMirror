@@ -1,8 +1,11 @@
 # TheOnlyMirror
 
 TheOnlyMirror 是一个用于单域名实现多镜像源的项目。通过对来源UA与URL的判断实现了自动分流到不同的source进行反向代理</br>
+
 测试站点 mirror.nothinglikethis.asia
 
+## 另一种实现
+如果可以的话请看看隔壁用config实现的版本 https://github.com/huangzheng2016/TheOnlyMirror
 ## 可用镜像
 
 - Debian系
