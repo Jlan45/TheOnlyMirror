@@ -1,0 +1,52 @@
+# TheOnlyMirror
+
+TheOnlyMirror 是一个用于单域名实现多镜像源的项目。通过对来源UA与URL的判断实现了自动分流到不同的source进行反向代理</br>
+测试站点 mirror.nothinglikethis.asia
+
+## 可用镜像
+
+- Debian系
+  - Ubuntu
+  - Kali
+  - Debian
+- Pypi
+- Docker
+- npm
+
+
+## 配置介绍
+
+```
+{
+  "domain": "mirror.nothinglikethis.asia", //域名
+  "mirrorList": [ //目前没用
+    "dockerhub",
+    "github",
+    "pypi",
+    "ubuntu"
+  ],
+  "sources": { //源url
+    "pypi_index": "https://pypi.org",
+    "pypi_files": "https://files.pythonhosted.org",
+    "dockerhub":"https://docker.mirror.nothinglikethis.asia",
+    "ubuntu": "http://archive.ubuntu.com",
+    "ubuntu_ports": "http://ports.ubuntu.com",
+    "debian": "http://deb.debian.org",
+    "kali": "http://http.kali.org",
+    "npm":"https://registry.npmjs.org"
+  },
+  "port": 8080, //监听端口
+  "tls": false, //根据该配置判断对部分有修改的源返回http还是https
+  "hostControll": false, //可通过host实现用户分配
+  "hostList": [] //host列表
+}
+```
+
+## 食用方式
+
+对于大部分的应用来说，只需要将对应镜像位置的url进行替换即可，少部分使用APT作为包管理器的，请在对应的源后添加如下Path
+
+- Ubuntu /ubuntu
+- Ubuntu-ports /ubuntu-ports
+- Debian /debian
+- Kali /kali
