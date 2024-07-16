@@ -98,7 +98,14 @@ func main() {
 			return
 		}
 	})
-
+	if config.ServerConfig.Tls {
+		tlssrv := &http.Server{
+			Addr:    fmt.Sprintf(":%d", config.ServerConfig.TlsPort),
+			Handler: server,
+		}
+		go tlssrv.ListenAndServeTLS(config.ServerConfig.CertFile, config.ServerConfig.KeyFile)
+		log.Println("TLS Server started")
+	}
 	// 启动服务器
 	srv := &http.Server{
 		Addr:    fmt.Sprintf(":%d", config.ServerConfig.Port),
@@ -106,5 +113,6 @@ func main() {
 		//TLSConfig:    cfg,
 		//TLSNextProto: make(map[string]func(*http.Server, *tls.Conn, http.Handler), 0),
 	}
+	log.Println("Server started")
 	srv.ListenAndServe()
 }

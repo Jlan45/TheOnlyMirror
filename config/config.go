@@ -13,9 +13,12 @@ type Config struct {
 	MirrorList   []string          `json:"mirrorList"`
 	Source       map[string]string `json:"sources"`
 	Port         int               `json:"port"`
+	TlsPort      int               `json:"tlsport"`
 	Tls          bool              `json:"tls"`
 	HostControll bool              `json:"hostControll"` //是否启用访问来源host控制
 	HostList     []string          `json:"hostList"`     //允许访问的host列表
+	CertFile     string            `json:"certFile"`
+	KeyFile      string            `json:"keyFile"`
 }
 
 var ServerConfig *Config
