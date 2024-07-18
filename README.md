@@ -15,6 +15,7 @@ TheOnlyMirror 是一个用于单域名实现多镜像源的项目。通过对来
 - Pypi
 - Docker
 - npm
+- Github Clone
 
 
 ## 配置介绍
@@ -39,6 +40,7 @@ TheOnlyMirror 是一个用于单域名实现多镜像源的项目。通过对来
     "npm":"https://registry.npmjs.org"
   },
   "port": 8080, //监听端口
+  "tlsport": 443, //https监听端口,如果对应端口被占用不会终止程序
   "tls": false, //根据该配置判断对部分有修改的源返回http还是https
   "hostControll": false, //可通过host实现用户分配
   "hostList": [] //host列表

@@ -1,5 +1,5 @@
 {
-  "domain": "mirror.example.org",
+  "domain": "mirror.example.com",
   "mirrorList": [
     "dockerhub",
     "github",
@@ -16,7 +16,8 @@
     "kali": "http://http.kali.org",
     "npm":"https://registry.npmjs.org",
     "alpine":"https://dl-cdn.alpinelinux.org",
-    "dockerblob": "https://production.cloudflare.docker.com"
+    "dockerblob": "https://production.cloudflare.docker.com",
+    "github": "https://github.com"
   },
   "port": 80,
   "tlsport": 443,

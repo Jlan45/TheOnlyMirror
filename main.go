@@ -22,11 +22,12 @@ var funcMap = map[string]func(w http.ResponseWriter, r *http.Request){
 	"kali":         mirrors.Kali,
 	"alpine":       mirrors.Alpine,
 	"npm":          mirrors.Npm,
+	"github":       mirrors.Github,
 }
 var uaMap = map[string]string{
 	//存放不同UA的特征，比如docker的特征就是ua中包含docker，key特征，value是上面funcMap中定义的镜像类型
-	"docker": "dockerhub",
-	//"git":            "github",
+	"docker":         "dockerhub",
+	"git":            "github",
 	"pip":            "pypi",
 	"npm":            "npm",
 	"node":           "npm",
@@ -54,7 +55,8 @@ func whichMirror(request *http.Request) string {
 	typeFromUA := ""
 	//初步判断
 	for key, value := range uaMap {
-		if strings.Contains(request.UserAgent(), key) {
+		uas := strings.Split(request.UserAgent(), " ")
+		if strings.Contains(uas[0], key) {
 			log.Println("Mirror:", value)
 			log.Println(request.URL.Path)
 			typeFromUA = value
@@ -68,6 +70,10 @@ func whichMirror(request *http.Request) string {
 	//alpine
 	if strings.HasPrefix(request.URL.Path, "/alpine") {
 		return "alpine"
+	}
+	//go 包获取，暂时只支持github
+	if request.URL.Query()["go-get"] != nil {
+		return "github"
 	}
 	mirrorType := typeFromUA
 	return mirrorType
