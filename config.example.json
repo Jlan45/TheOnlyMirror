@@ -4,7 +4,8 @@
     "dockerhub",
     "github",
     "pypi",
-    "ubuntu"
+    "ubuntu",
+    "aosp"
   ],
   "sources": {
     "pypi_index": "https://pypi.org",
@@ -17,7 +18,8 @@
     "npm":"https://registry.npmjs.org",
     "alpine":"https://dl-cdn.alpinelinux.org",
     "dockerblob": "https://production.cloudflare.docker.com",
-    "github": "https://github.com"
+    "github": "https://github.com",
+    "aosp": "https://android.googlesource.com"
   },
   "port": 80,
   "tlsport": 443,
