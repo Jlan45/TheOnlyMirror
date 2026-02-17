@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TheOnlyMirror - 镜像配置中心</title>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --surface: #1e293b;
+            --surface-hover: #334155;
+            --border: #334155;
+            --text: #e2e8f0;
+            --text-muted: #94a3b8;
+            --accent: #38bdf8;
+            --accent-dim: rgba(56, 189, 248, 0.1);
+            --green: #4ade80;
+            --orange: #fb923c;
+            --red: #f87171;
+            --code-bg: #0d1117;
+            --radius: 12px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        .header {
+            text-align: center;
+            padding: 3rem 1rem 2rem;
+            border-bottom: 1px solid var(--border);
+        }
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, var(--accent), #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .header p {
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+            font-size: 1.1rem;
+        }
+        .domain-badge {
+            display: inline-block;
+            margin-top: 1rem;
+            padding: 0.4rem 1rem;
+            background: var(--accent-dim);
+            border: 1px solid var(--accent);
+            border-radius: 999px;
+            color: var(--accent);
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 0.9rem;
+        }
+        .nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            justify-content: center;
+            padding: 1.5rem 1rem;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .nav-btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            background: var(--surface);
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+        .nav-btn:hover { border-color: var(--accent); color: var(--accent); }
+        .nav-btn.active {
+            background: var(--accent-dim);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 1rem 3rem;
+        }
+        .mirror-card {
+            display: none;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            animation: fadeIn 0.3s ease;
+        }
+        .mirror-card.active { display: block; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .mirror-card h2 {
+            font-size: 1.4rem;
+            margin-bottom: 0.3rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+        .mirror-card h2 .icon { font-size: 1.6rem; }
+        .mirror-card .desc {
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+        }
+        .mirror-card h3 {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            margin-bottom: 0.6rem;
+            margin-top: 1.2rem;
+        }
+        .mirror-card h3:first-of-type { margin-top: 0; }
+        .code-block {
+            position: relative;
+            background: var(--code-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem 1.2rem;
+            margin-bottom: 1rem;
+            overflow-x: auto;
+        }
+        .code-block pre {
+            font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+            font-size: 0.85rem;
+            line-height: 1.7;
+            white-space: pre;
+            color: var(--text);
+        }
+        .code-block .comment { color: #6a737d; }
+        .code-block .string { color: #a5d6ff; }
+        .code-block .cmd { color: #79c0ff; }
+        .copy-btn {
+            position: absolute;
+            top: 0.6rem;
+            right: 0.6rem;
+            padding: 0.3rem 0.6rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: var(--surface);
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 0.75rem;
+            transition: all 0.2s;
+        }
+        .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+        .copy-btn.copied { border-color: var(--green); color: var(--green); }
+        .tag {
+            display: inline-block;
+            padding: 0.15rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        .tag-ua { background: rgba(74,222,128,0.15); color: var(--green); }
+        .tag-path { background: rgba(251,146,60,0.15); color: var(--orange); }
+        .note {
+            background: rgba(56,189,248,0.08);
+            border-left: 3px solid var(--accent);
+            padding: 0.8rem 1rem;
+            border-radius: 0 8px 8px 0;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+        .footer {
+            text-align: center;
+            padding: 2rem 1rem;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            border-top: 1px solid var(--border);
+        }
+        .footer a { color: var(--accent); text-decoration: none; }
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 0.8rem;
+            margin-bottom: 2rem;
+        }
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.6rem 1rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .status-item:hover { border-color: var(--accent); }
+        .status-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: var(--green);
+        }
+        .status-dot.off { background: var(--text-muted); }
+        @media (max-width: 640px) {
+            .header h1 { font-size: 1.8rem; }
+            .mirror-card { padding: 1.2rem; }
+            .status-grid { grid-template-columns: 1fr 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>TheOnlyMirror</h1>
+        <p>一域多镜 — 统一镜像代理服务</p>
+        <div class="domain-badge">{{.Domain}}</div>
+    </div>
+
+    <div class="container">
+        <div class="nav" id="nav">
+            <button class="nav-btn active" data-target="overview">概览</button>
+            {{range .Mirrors}}<button class="nav-btn" data-target="{{.ID}}">{{.Name}}</button>
+            {{end}}
+        </div>
+
+        <!-- Overview -->
+        <div class="mirror-card active" id="card-overview">
+            <h2>已启用的镜像服务</h2>
+            <p class="desc">当前域名 <code>{{.Domain}}</code> 支持以下镜像，点击查看配置方式。</p>
+            <div class="status-grid">
+                {{range .Mirrors}}
+                <div class="status-item" onclick="switchTo('{{.ID}}')">
+                    <span class="status-dot"></span>
+                    <span>{{.Name}}</span>
+                </div>
+                {{end}}
+            </div>
+            <div class="note">
+                本服务通过智能识别 User-Agent 和 URL 路径自动路由到对应的上游源，无需额外端口或子域名。
+            </div>
+        </div>
+
+        {{range .Mirrors}}
+        <!-- {{.Name}} -->
+        <div class="mirror-card" id="card-{{.ID}}">
+            <h2><span class="icon">{{.Icon}}</span> {{.Name}}</h2>
+            <p class="desc">{{.Description}} <span class="tag {{.DetectClass}}">{{.DetectLabel}}</span></p>
+            {{range .Sections}}
+            <h3>{{.Title}}</h3>
+            <div class="code-block">
+                <button class="copy-btn" onclick="copyCode(this)">复制</button>
+                <pre>{{.Code}}</pre>
+            </div>
+            {{end}}
+            {{if .Note}}
+            <div class="note">{{.Note}}</div>
+            {{end}}
+        </div>
+        {{end}}
+    </div>
+
+    <div class="footer">
+        Powered by <a href="https://github.com">TheOnlyMirror</a> &mdash; 一个域名，所有镜像
+    </div>
+
+    <script>
+        // Navigation
+        document.getElementById('nav').addEventListener('click', function(e) {
+            if (!e.target.classList.contains('nav-btn')) return;
+            switchTo(e.target.dataset.target);
+        });
+
+        function switchTo(target) {
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.querySelector(`.nav-btn[data-target="${target}"]`).classList.add('active');
+            document.querySelectorAll('.mirror-card').forEach(c => c.classList.remove('active'));
+            document.getElementById('card-' + target).classList.add('active');
+        }
+
+        // Copy
+        function copyCode(btn) {
+            const code = btn.nextElementSibling.textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                btn.textContent = '已复制';
+                btn.classList.add('copied');
+                setTimeout(() => { btn.textContent = '复制'; btn.classList.remove('copied'); }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>

@@ -2,6 +2,7 @@ package config
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/url"
 	"os"
@@ -60,6 +61,12 @@ func LoadConfig() error {
 	err = json.Unmarshal(bytes, &ServerConfig)
 	if err != nil {
 		return err
+	}
+	// Validate all source URLs during config loading
+	for key, urlStr := range ServerConfig.Source {
+		if _, err := url.Parse(urlStr); err != nil {
+			return fmt.Errorf("invalid URL in config for source %s: %w", key, err)
+		}
 	}
 	return nil
 }
