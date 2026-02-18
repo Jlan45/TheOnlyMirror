@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
+	"net/http"
 	"net/url"
 	"os"
 	"strings"
@@ -20,13 +22,32 @@ type Config struct {
 	HostList     []string          `json:"hostList"`     //允许访问的host列表
 	CertFile     string            `json:"certFile"`
 	KeyFile      string            `json:"keyFile"`
+	Proxy        string            `json:"proxy"` // 全局上层代理地址 (支持 http/https/socks5)
 }
 
 var ServerConfig *Config
 
 func (cfg *Config) GetSourceUrl(key string) *url.URL {
-	tmpUrl, _ := url.Parse(cfg.Source[key])
+	tmpUrl, err := url.Parse(cfg.Source[key])
+	if err != nil {
+		log.Printf("error: invalid source URL for %s: %v", key, err)
+		return &url.URL{}
+	}
 	return tmpUrl
+}
+
+// GetProxyForSource 返回指定源的代理配置函数，供 http.Transport 使用。
+// 使用全局 proxy 配置，没有则返回 nil（直连）。
+func (cfg *Config) GetProxyForSource(sourceKey string) func(*http.Request) (*url.URL, error) {
+	if cfg.Proxy == "" {
+		return nil
+	}
+	proxyURL, err := url.Parse(cfg.Proxy)
+	if err != nil {
+		log.Printf("error: invalid proxy URL: %v", err)
+		return nil
+	}
+	return http.ProxyURL(proxyURL)
 }
 func (cfg *Config) CheckHost(host string) bool {
 	for _, v := range cfg.HostList {

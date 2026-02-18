@@ -4,9 +4,18 @@ import (
 	"TheOnlyMirror/config"
 	"TheOnlyMirror/utils"
 	"net/http"
+	"net/http/httputil"
+	"sync"
+)
+
+var (
+	githubProxy     *httputil.ReverseProxy
+	githubProxyOnce sync.Once
 )
 
 func Github(w http.ResponseWriter, r *http.Request) {
-	githubProxy := utils.GetSimpleReverseProxy(config.ServerConfig.GetSourceUrl("github"))
+	githubProxyOnce.Do(func() {
+		githubProxy = utils.GetSimpleReverseProxy(config.ServerConfig.GetSourceUrl("github"), "github")
+	})
 	githubProxy.ServeHTTP(w, r)
 }

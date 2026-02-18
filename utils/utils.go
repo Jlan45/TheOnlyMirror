@@ -1,6 +1,8 @@
 package utils
 
 import (
+	"TheOnlyMirror/config"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -13,9 +15,21 @@ import (
 // 超过此大小的响应将直接透传，不做替换，防止 OOM。
 const maxReplaceBodySize = 10 << 20
 
-func GetSimpleReverseProxy(SourceUrl *url.URL) *httputil.ReverseProxy {
+// buildTransport 根据 sourceKey 创建带代理配置的 Transport。
+func buildTransport(sourceKey string) *http.Transport {
+	t := http.DefaultTransport.(*http.Transport).Clone()
+	if proxyFunc := config.ServerConfig.GetProxyForSource(sourceKey); proxyFunc != nil {
+		t.Proxy = proxyFunc
+		log.Printf("[%s] using proxy: %s", sourceKey, config.ServerConfig.Proxy)
+	}
+	return t
+}
+
+func GetSimpleReverseProxy(SourceUrl *url.URL, sourceKey string) *httputil.ReverseProxy {
 	// 最简单的proxy，只进行host替换
+	log.Printf("[%s] creating simple reverse proxy -> %s", sourceKey, SourceUrl.String())
 	proxy := httputil.NewSingleHostReverseProxy(SourceUrl)
+	proxy.Transport = buildTransport(sourceKey)
 	originalDirector := proxy.Director
 	proxy.Director = func(req *http.Request) {
 		originalDirector(req)
@@ -24,9 +38,11 @@ func GetSimpleReverseProxy(SourceUrl *url.URL) *httputil.ReverseProxy {
 	return proxy
 }
 
-func GetContentReplaceReverseProxy(SourceUrl *url.URL, orgstr string, dststr string) *httputil.ReverseProxy {
+func GetContentReplaceReverseProxy(SourceUrl *url.URL, orgstr string, dststr string, sourceKey string) *httputil.ReverseProxy {
 	// 对内容进行替换的proxy
+	log.Printf("[%s] creating content-replace reverse proxy -> %s (replace: %s => %s)", sourceKey, SourceUrl.String(), orgstr, dststr)
 	proxy := httputil.NewSingleHostReverseProxy(SourceUrl)
+	proxy.Transport = buildTransport(sourceKey)
 	originalDirector := proxy.Director
 	proxy.Director = func(req *http.Request) {
 		originalDirector(req)
@@ -65,6 +81,9 @@ func GetContentReplaceReverseProxy(SourceUrl *url.URL, orgstr string, dststr str
 		modifiedBody := strings.ReplaceAll(string(bodyBytes), orgstr, dststr)
 		resp.Body = io.NopCloser(strings.NewReader(modifiedBody))
 		resp.ContentLength = int64(len(modifiedBody))
+		resp.Header.Set("Content-Length", fmt.Sprintf("%d", resp.ContentLength))
+		// 替换后内容已经是完整的非 chunked 数据，必须移除 Transfer-Encoding
+		resp.Header.Del("Transfer-Encoding")
 		return nil
 	}
 	return proxy

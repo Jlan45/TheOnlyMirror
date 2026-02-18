@@ -12,10 +12,6 @@ import (
 	"time"
 )
 
-var DebianDistribution = map[string][]string{
-	"ubuntu": []string{"bionic", "devel", "focal", "jammy", "lunar", "mantic", "noble", "oracular", "trusty", "xenial"},
-	"debian": []string{"buster", "bullseye", "jessie", "sid", "stretch", "wheezy"},
-}
 var funcMap = map[string]func(w http.ResponseWriter, r *http.Request){
 	"pypi":         mirrors.Pypi,
 	"dockerhub":    mirrors.Docker,
@@ -140,5 +136,7 @@ func main() {
 		IdleTimeout:       120 * time.Second,
 	}
 	log.Println("Server started")
-	srv.ListenAndServe()
+	if err := srv.ListenAndServe(); err != nil {
+		log.Fatal("HTTP server error: ", err)
+	}
 }

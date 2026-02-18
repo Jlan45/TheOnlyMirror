@@ -27,5 +27,6 @@
   "hostControll": false,
   "hostList": [],
   "certFile": "example.crt",
-  "keyFile": "example.key"
+  "keyFile": "example.key",
+  "proxy": ""
 }
